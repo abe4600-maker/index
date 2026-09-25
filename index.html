@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイ雑学辞典</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary-color: #1e3a8a;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-color: #1f2937;
+            --border-color: #cbd5e1;
+            --shadow-color: rgba(30, 58, 138, 0.08);
+            --highlight-color: #fef08a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 16px 0;
+            border-bottom: 2px solid var(--accent-color);
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 16px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--primary-color);
+            border-radius: 6px;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-tab.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 6px var(--shadow-color);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #fff;
+        }
+
+        /* リッチテキストエディタツールバー＆エリア */
+        .editor-toolbar {
+            display: flex;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 6px;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+        }
+
+        .editor-btn {
+            background: #ffffff;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            width: auto;
+            font-weight: bold;
+        }
+
+        .editor-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .editor-content {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            font-size: 1rem;
+            background: #fff;
+            overflow-y: auto;
+            outline: none;
+        }
+
+        .editor-content hr {
+            border: none;
+            border-top: 2px solid var(--border-color);
+            margin: 12px 0;
+        }
+
+        .related-group {
+            background: #f8fafc;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button.secondary {
+            background-color: #64748b;
+            margin-top: 8px;
+        }
+
+        button.secondary:hover {
+            background-color: #475569;
+        }
+
+        button.danger {
+            background-color: #dc2626;
+            margin-top: 8px;
+        }
+
+        button.danger:hover {
+            background-color: #b91c1c;
+        }
+
+        /* 検索・一覧画面 */
+        .search-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .trivia-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .trivia-item:active {
+            transform: scale(0.98);
+        }
+
+        .trivia-category {
+            font-size: 0.75rem;
+            background: #e0f2fe;
+            color: var(--primary-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .trivia-title {
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* 詳細画面 */
+        .detail-meta {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            background: #f1f5f9;
+            padding: 8px 10px;
+            border-radius: 4px;
+        }
+
+        .detail-content {
+            word-break: break-all;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-content hr {
+            border: none;
+            border-top: 2px solid var(--border-color);
+            margin: 12px 0;
+        }
+
+        .in-page-search {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .in-page-search input {
+            padding: 6px 10px;
+            font-size: 0.9rem;
+        }
+
+        .in-page-search button {
+            width: auto;
+            padding: 6px 14px;
+            font-size: 0.9rem;
+        }
+
+        .history-list {
+            font-size: 0.8rem;
+            color: #334155;
+            background: #f1f5f9;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .history-item {
+            margin-bottom: 2px;
+            border-bottom: 1px dotted #cbd5e1;
+            padding-bottom: 2px;
+        }
+
+        .highlight {
+            background-color: var(--highlight-color);
+            font-weight: bold;
+            padding: 0 2px;
+        }
+
+        .detail-section-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 12px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2px;
+        }
+
+        .detail-related-item {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            margin-bottom: 4px;
+            padding: 6px;
+            background: #f8fafc;
+            border: 1px dashed var(--border-color);
+            border-radius: 4px;
+        }
+        
+        .detail-related-item:hover {
+            background: #e0f2fe;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📖 マイ雑学辞典</h1>
+    </header>
+
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('search')">検索・一覧</div>
+        <div class="nav-tab" onclick="openNewRegistration()" id="formTabLabel">新規登録</div>
+    </div>
+
+    <!-- 検索・一覧画面 -->
+    <div id="searchView" class="view-section active">
+        <div class="card">
+            <div class="search-filters">
+                <input type="text" id="searchInput" placeholder="キーワード検索..." oninput="filterTrivia()">
+                <select id="categoryFilter" onchange="filterTrivia()">
+                    <option value="">すべての分類</option>
+                </select>
+            </div>
+            <div id="triviaList"></div>
+        </div>
+    </div>
+
+    <!-- 登録・編集画面 -->
+    <div id="formView" class="view-section">
+        <div class="card">
+            <h2 id="formTitleText">新規雑学登録</h2>
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label>分類（任意登録・選択）</label>
+                <input type="text" id="category" list="categoryList" placeholder="例: 科学、歴史、雑学など">
+                <datalist id="categoryList"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label>タイトル</label>
+                <input type="text" id="title" placeholder="タイトルを入力">
+            </div>
+
+            <div class="form-group">
+                <label>内容（装飾可能）</label>
+                <!-- リッチテキストツールバー -->
+                <div class="editor-toolbar">
+                    <button type="button" class="editor-btn" onclick="execCommand('bold')"><b>B 太字</b></button>
+                    <button type="button" class="editor-btn" onclick="execColor('red')" style="color:red;"><b>赤字</b></button>
+                    <button type="button" class="editor-btn" onclick="execCommand('insertHorizontalRule')">― 罫線</button>
+                </div>
+                <!-- 編集可能なコンテンツエリア -->
+                <div id="content" class="editor-content" contenteditable="true" placeholder="詳細な内容を入力してください"></div>
+            </div>
+
+            <div class="form-group">
+                <label>登録日</label>
+                <input type="text" id="createdAt" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>更新日</label>
+                <input type="text" id="updatedAt" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>情報元</label>
+                <input type="text" id="source" placeholder="例: 書籍名、Webサイト名など">
+            </div>
+
+            <!-- 関連雑学 1〜5 -->
+            <label>関連雑学（最大5件）</label>
+            <div id="relatedContainer"></div>
+
+            <div class="form-group" style="margin-top:12px;">
+                <label>直近の更新履歴（直近5行）</label>
+                <div id="historyDisplay" class="history-list">履歴なし</div>
+            </div>
+
+            <button onclick="saveTrivia()">保存する</button>
+            <button class="secondary" onclick="switchTab('search')">キャンセルして一覧へ</button>
+        </div>
+    </div>
+
+    <!-- 詳細表示画面 -->
+    <div id="detailView" class="view-section">
+        <div class="card">
+            <div class="detail-meta">
+                <span><strong>分類:</strong> <span id="detailCategory">-</span></span>
+                <span><strong>登録:</strong> <span id="detailCreatedAt">-</span> / <strong>更新:</strong> <span id="detailUpdatedAt">-</span></span>
+            </div>
+            
+            <div class="in-page-search">
+                <input type="text" id="inPageQuery" placeholder="このページ内を文字検索...">
+                <button onclick="searchInPage()">検索・移動</button>
+            </div>
+
+            <h2 id="detailTitle" style="border:none; padding:0; margin-bottom:8px;">タイトル</h2>
+
+            <div class="detail-section-title">内容</div>
+            <div id="detailContent" class="detail-content">内容</div>
+            
+            <div class="detail-section-title">情報元</div>
+            <div id="detailSource" style="font-size:0.9rem; margin-bottom:12px; background:#f8fafc; padding:8px; border-radius:6px; border:1px solid var(--border-color);">-</div>
+
+            <div class="detail-section-title">関連雑学（最大5件）</div>
+            <div id="detailRelatedBox" style="margin-bottom:12px;">
+                <div id="detailRelatedList">なし</div>
+            </div>
+
+            <div class="detail-section-title">直近の更新履歴（直近5行）</div>
+            <div id="detailHistoryList" class="history-list" style="margin-bottom:16px;">履歴なし</div>
+
+            <button onclick="editCurrentTrivia()">編集する</button>
+            <button class="danger" onclick="deleteCurrentTrivia()">削除する</button>
+            <button class="secondary" onclick="switchTab('search')">一覧に戻る</button>
+        </div>
+    </div>
+
+    <script>
+        function execCommand(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('content').focus();
+        }
+
+        function execColor(color) {
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, color);
+            document.getElementById('content').focus();
+        }
+
+        function getJapanDateStr() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const jstDate = new Date(utc + (3600000 * 9));
+            const y = jstDate.getFullYear();
+            const m = String(jstDate.getMonth() + 1).padStart(2, '0');
+            const d = String(jstDate.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        let triviaList = JSON.parse(localStorage.getItem('trivia_list') || '[]');
+        let currentDetailId = null;
+
+        window.onload = function() {
+            initRelatedInputs();
+            resetForm();
+            filterTrivia();
+        };
+
+        function initRelatedInputs() {
+            const container = document.getElementById('relatedContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                container.innerHTML += `
+                    <div class="related-group">
+                        <label>関連雑学 #${i}</label>
+                        <select id="relId_${i}" class="form-group" style="margin-bottom:4px;">
+                            <option value="">-- 紐づけなし --</option>
+                        </select>
+                        <input type="text" id="relMemo_${i}" placeholder="備考欄（任意）" style="font-size:0.9rem;">
+                    </div>
+                `;
+            }
+        }
+
+        function updateSelectOptions(excludeId = null) {
+            for (let i = 1; i <= 5; i++) {
+                const select = document.getElementById(`relId_${i}`);
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">-- 紐づけなし --</option>';
+                triviaList.forEach(item => {
+                    if (item.id !== excludeId) {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+                        opt.textContent = `[${item.category || '未分類'}] ${item.title}`;
+                        select.appendChild(opt);
+                    }
+                });
+                select.value = currentVal;
+            }
+
+            const categories = [...new Set(triviaList.map(item => item.category).filter(Boolean))];
+            
+            const catFilter = document.getElementById('categoryFilter');
+            const currentCatFilter = catFilter.value;
+            catFilter.innerHTML = '<option value="">すべての分類</option>';
+            categories.forEach(cat => {
+                catFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            catFilter.value = currentCatFilter;
+
+            const dataList = document.getElementById('categoryList');
+            dataList.innerHTML = '';
+            categories.forEach(cat => {
+                dataList.innerHTML += `<option value="${cat}">`;
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'search') {
+                document.getElementById('searchView').classList.add('active');
+                document.querySelectorAll('.nav-tab')[0].classList.add('active');
+                filterTrivia();
+            } else if (tabName === 'form') {
+                document.getElementById('formView').classList.add('active');
+                document.getElementById('formTabLabel').classList.add('active');
+            } else if (tabName === 'detail') {
+                document.getElementById('detailView').classList.add('active');
+            }
+        }
+
+        // 新規登録タブがクリックされたとき（完全に中身をクリアする）
+        function openNewRegistration() {
+            resetForm();
+            switchTab('form');
+        }
+
+        function resetForm() {
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitleText').textContent = '新規雑学登録';
+            document.getElementById('category').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('content').innerHTML = '';
+            const today = getJapanDateStr();
+            document.getElementById('createdAt').value = today;
+            document.getElementById('updatedAt').value = today;
+            document.getElementById('source').value = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const relId = document.getElementById(`relId_${i}`);
+                const relMemo = document.getElementById(`relMemo_${i}`);
+                if(relId) relId.value = '';
+                if(relMemo) relMemo.value = '';
+            }
+            document.getElementById('historyDisplay').innerHTML = '履歴なし';
+            updateSelectOptions();
+        }
+
+        function saveTrivia() {
+            const idField = document.getElementById('editId').value;
+            const category = document.getElementById('category').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').innerHTML.trim();
+            const source = document.getElementById('source').value.trim();
+            const today = getJapanDateStr();
+
+            if (!title) {
+                alert('タイトルを入力してください。');
+                return;
+            }
+
+            const relations = [];
+            for (let i = 1; i <= 5; i++) {
+                relations.push({
+                    id: document.getElementById(`relId_${i}`).value,
+                    memo: document.getElementById(`relMemo_${i}`).value.trim()
+                });
+            }
+
+            if (idField) {
+                const index = triviaList.findIndex(item => item.id == idField);
+                if (index !== -1) {
+                    const oldItem = triviaList[index];
+                    
+                    let changes = [];
+                    if (oldItem.category !== category) changes.push('分類');
+                    if (oldItem.title !== title) changes.push('タイトル');
+                    if (oldItem.content !== content) changes.push('内容');
+                    if (oldItem.source !== source) changes.push('情報元');
+                    
+                    let relChanged = false;
+                    for(let i=0; i<5; i++) {
+                        if((oldItem.relations[i]?.id || '') !== (relations[i].id || '') ||
+                           (oldItem.relations[i]?.memo || '') !== (relations[i].memo || '')) {
+                            relChanged = true;
+                        }
+                    }
+                    if(relChanged) changes.push('関連雑学');
+
+                    const changeText = changes.length > 0 ? `修正項目: ${changes.join(', ')}` : '内容の更新';
+
+                    const newHistoryItem = {
+                        date: today,
+                        text: changeText
+                    };
+
+                    let history = oldItem.history || [];
+                    history.unshift(newHistoryItem);
+                    if (history.length > 5) history = history.slice(0, 5);
+
+                    triviaList[index] = {
+                        ...oldItem,
+                        category,
+                        title,
+                        content,
+                        updatedAt: today,
+                        source,
+                        relations,
+                        history
+                    };
+                }
+            } else {
+                const newItem = {
+                    id: Date.now().toString(),
+                    category: category || '未分類',
+                    title,
+                    content,
+                    createdAt: today,
+                    updatedAt: today,
+                    source,
+                    relations,
+                    history: [{ date: today, text: '新規登録' }]
+                };
+                triviaList.unshift(newItem);
+            }
+
+            localStorage.setItem('trivia_list', JSON.stringify(triviaList));
+            switchTab('search');
+            filterTrivia();
+        }
+
+        function filterTrivia() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const selectedCat = document.getElementById('categoryFilter').value;
+            const listContainer = document.getElementById('triviaList');
+
+            const filtered = triviaList.filter(item => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = item.content;
+                const plainContent = tempDiv.textContent || tempDiv.innerText || '';
+
+                const matchCat = !selectedCat || item.category === selectedCat;
+                const matchKeyword = !keyword || 
+                    item.title.toLowerCase().includes(keyword) || 
+                    plainContent.toLowerCase().includes(keyword) || 
+                    (item.source && item.source.toLowerCase().includes(keyword)) ||
+                    (item.category && item.category.toLowerCase().includes(keyword));
+                return matchCat && matchKeyword;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#777; padding:20px;">該当する雑学がありません。</p>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(item => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = item.content;
+                const plainContent = tempDiv.textContent || tempDiv.innerText || '';
+
+                html += `
+                    <div class="trivia-item" onclick="showDetail('${item.id}')">
+                        <span class="trivia-category">${escapeHtml(item.category || '未分類')}</span>
+                        <div class="trivia-title">${escapeHtml(item.title)}</div>
+                        <div style="font-size:0.85rem; color:#64748b; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            ${escapeHtml(plainContent)}
+                        </div>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+            updateSelectOptions();
+        }
+
+        function showDetail(id) {
+            const item = triviaList.find(t => t.id == id);
+            if (!item) return;
+
+            currentDetailId = id;
+            document.getElementById('detailCategory').textContent = item.category || '未分類';
+            document.getElementById('detailCreatedAt').textContent = item.createdAt || '-';
+            document.getElementById('detailUpdatedAt').textContent = item.updatedAt || '-';
+            document.getElementById('detailTitle').textContent = item.title;
+            document.getElementById('detailContent').innerHTML = item.content || '';
+            document.getElementById('detailSource').textContent = item.source || 'なし';
+            document.getElementById('inPageQuery').value = '';
+
+            const relatedList = document.getElementById('detailRelatedList');
+            relatedList.innerHTML = '';
+            
+            let hasValidRel = false;
+            if (item.relations && item.relations.length > 0) {
+                item.relations.forEach((rel, index) => {
+                    if (rel && rel.id) {
+                        const targetItem = triviaList.find(t => t.id == rel.id);
+                        if (targetItem) {
+                            hasValidRel = true;
+                            const memoStr = rel.memo ? `（備考: ${rel.memo}）` : '';
+                            relatedList.innerHTML += `
+                                <div class="detail-related-item" onclick="showDetail('${targetItem.id}')">
+                                    <strong>関連 #${index + 1}:</strong> ${escapeHtml(targetItem.title)} ${escapeHtml(memoStr)}
+                                </div>
+                            `;
+                        }
+                    }
+                });
+            }
+
+            if (!hasValidRel) {
+                relatedList.innerHTML = '<span style="color:#64748b; font-size:0.85rem;">関連する雑学はありません</span>';
+            }
+
+            const historyList = document.getElementById('detailHistoryList');
+            let histHtml = '';
+            if (item.history && item.history.length > 0) {
+                item.history.forEach(h => {
+                    histHtml += `<div class="history-item">[${h.date}] ${escapeHtml(h.text)}</div>`;
+                });
+            } else {
+                histHtml = '履歴なし';
+            }
+            historyList.innerHTML = histHtml;
+
+            switchTab('detail');
+            window.scrollTo(0, 0);
+        }
+
+        function searchInPage() {
+            const query = document.getElementById('inPageQuery').value.trim();
+            const contentDiv = document.getElementById('detailContent');
+            const item = triviaList.find(t => t.id == currentDetailId);
+            
+            if (!item) return;
+
+            contentDiv.innerHTML = item.content;
+
+            if (!query) return;
+
+            function highlightText(node, keyword) {
+                if (node.nodeType === 3) {
+                    const val = node.nodeValue;
+                    const idx = val.toLowerCase().indexOf(keyword.toLowerCase());
+                    if (idx >= 0) {
+                        const spannable = document.createElement('span');
+                        const matchedText = val.substr(idx, keyword.length);
+                        spannable.innerHTML = val.substring(0, idx) + `<span class="highlight">${matchedText}</span>` + val.substring(idx + keyword.length);
+                        node.parentNode.replaceChild(spannable, node);
+                    }
+                } else if (node.nodeType === 1 && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE') {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        highlightText(node.childNodes[i], keyword);
+                    }
+                }
+            }
+
+            highlightText(contentDiv, query);
+
+            const firstHighlight = contentDiv.querySelector('.highlight');
+            if (firstHighlight) {
+                firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert('該当する文字が見つかりませんでした。');
+            }
+        }
+
+        function editCurrentTrivia() {
+            const item = triviaList.find(t => t.id == currentDetailId);
+            if (!item) return;
+
+            document.getElementById('editId').value = item.id;
+            document.getElementById('formTitleText').textContent = '雑学の編集';
+            document.getElementById('category').value = item.category || '';
+            document.getElementById('title').value = item.title || '';
+            document.getElementById('content').innerHTML = item.content || '';
+            document.getElementById('createdAt').value = item.createdAt || getJapanDateStr();
+            document.getElementById('updatedAt').value = getJapanDateStr();
+            document.getElementById('source').value = item.source || '';
+
+            updateSelectOptions(item.id);
+
+            for (let i = 1; i <= 5; i++) {
+                const rel = (item.relations && item.relations[i-1]) || {};
+                document.getElementById(`relId_${i}`).value = rel.id || '';
+                document.getElementById(`relMemo_${i}`).value = rel.memo || '';
+            }
+
+            let histHtml = '';
+            if (item.history && item.history.length > 0) {
+                item.history.forEach(h => {
+                    histHtml += `<div class="history-item">[${h.date}] ${escapeHtml(h.text)}</div>`;
+                });
+            } else {
+                histHtml = '履歴なし';
+            }
+            document.getElementById('historyDisplay').innerHTML = histHtml;
+
+            switchTab('form');
+        }
+
+        function deleteCurrentTrivia() {
+            if (confirm('この雑学を削除してもよろしいですか？')) {
+                triviaList = triviaList.filter(t => t.id != currentDetailId);
+                localStorage.setItem('trivia_list', JSON.stringify(triviaList));
+                switchTab('search');
+                filterTrivia();
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&'`<>"\s]/g, function(match) {
+                const entityMap = {
+                    '&': '&amp;',
+                    "'": '&#x27;',
+                    '`': '&#x60;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    ' ': ' '
+                };
+                return entityMap[match] || match;
+            });
+        }
+    </script>
+</body>
+</html>
